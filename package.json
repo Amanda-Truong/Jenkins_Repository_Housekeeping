@@ -1,19 +1,30 @@
 {
   "name": "jenkins_repository_housekeeping",
   "version": "0.0.1",
-  "description": "Scan and compile a list of GitHub repositories which include a Jenkins File and has been modified within 30 days",
+  "description": "Scan and compile list of GitHub repositories which include Jenkins File and was modified within 30 days",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Newforma/jenkins_repository_housekeeping.git"
   },
+  "author": "Team Artoo <teamartoo@newforma.com>",
   "private": true,
   "license": "UNLICENSED",
   "homepage": "https://github.com/Newforma/jenkins_repository_housekeeping#readme",
   "dependencies": {
+    "es6-promisify": "^5.0.0",
     "github-api": "^3.0.0"
   },
   "devDependencies": {
-    "dotenv": "^4.0.0"
+    "chai": "^4.0.2",
+    "dotenv": "^4.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-chai-friendly": "^0.3.6",
+    "eslint-plugin-import": "^2.2.0",
+    "mocha": "^3.4.2",
+    "proxyquire": "^1.8.0",
+    "sinon": "^2.3.5",
+    "sinon-chai": "^2.11.0"
   }
 }
