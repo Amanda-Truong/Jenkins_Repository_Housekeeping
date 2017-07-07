@@ -1,0 +1,19 @@
+{
+  "name": "jenkins_repository_housekeeping",
+  "version": "0.0.1",
+  "description": "Scan and compile a list of GitHub repositories which include a Jenkins File and has been modified within 30 days",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Newforma/jenkins_repository_housekeeping.git"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/Newforma/jenkins_repository_housekeeping#readme",
+  "dependencies": {
+    "github-api": "^3.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0"
+  }
+}
