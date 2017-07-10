@@ -13,7 +13,8 @@
   "homepage": "https://github.com/Newforma/jenkins_repository_housekeeping#readme",
   "dependencies": {
     "es6-promisify": "^5.0.0",
-    "github-api": "^3.0.0"
+    "github-api": "^3.0.0",
+    "jenkins-api": "^0.2.8"
   },
   "devDependencies": {
     "chai": "^4.0.2",
