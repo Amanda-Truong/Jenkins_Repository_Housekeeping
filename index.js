@@ -1,13 +1,16 @@
- const gitHubService = require("./gitHubServices");
+const gitHubService = require("./gitHubServices");
+const jenkinsService = require("./jenkinsServices");
 function handler(event, context, callback)
 {
-    try{
-        gitHubService.getLastUpdateDate();
+    console.log('Event:', event);
+    console.log('Context:', context);
 
-        callback(null,"Success!!")
-    } catch(e) {
-        control.error("Exception: %s", e.message);
-        callback(e);
-    }
+    //console.log(gitHubService.getLastUpdateDate());
+    Promise.resolve()
+        .then(() => gitHubService.getLastUpdateDate())
+        .catch((reason) => {
+            console.error(reason);
+            callback(reason);
+        });
 }
 exports.handler = handler;
