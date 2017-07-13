@@ -5,9 +5,12 @@ function handler(event, context, callback)
     console.log('Event:', event);
     console.log('Context:', context);
 
-    //console.log(gitHubService.getLastUpdateDate());
     Promise.resolve()
-        .then(() => gitHubService.getLastUpdateDate())
+        .then(() => gitHubService.hasJenkinsfiles())
+        //.then(() => gitHubService.getLast())
+        //.then(() => gitHubService.getLastUpdateDate())
+        .then(() => callback(null, "Done!!"))
+
         .catch((reason) => {
             console.error(reason);
             callback(reason);
