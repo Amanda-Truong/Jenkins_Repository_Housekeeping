@@ -6,9 +6,7 @@ function handler(event, context, callback)
     console.log('Context:', context);
 
     Promise.resolve()
-        .then(() => gitHubService.hasJenkinsfiles())
-        //.then(() => gitHubService.getLast())
-        //.then(() => gitHubService.getLastUpdateDate())
+        .then(() => gitHubService.getLastUpdateDate())
         .then(() => callback(null, "Done!!"))
 
         .catch((reason) => {
@@ -16,4 +14,6 @@ function handler(event, context, callback)
             callback(reason);
         });
 }
+
+// TODO have it print out names and dates of the list
 exports.handler = handler;

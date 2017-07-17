@@ -12,8 +12,8 @@ function getLastUpdateDate() {
     return Promise.resolve(gh.getOrganization(organizationName))
         .then(organization => organization.getRepos())
         .then(response => response.data.map(item => item.name).map(name => getRepositoryInfo(name)))
-        // TODO check if a repo has a Jenkinsfile
-        //.then(repositories => getRepositoryUpdatedDates(repositories))
+        .then(repositories => repositories.filter(repository => hasJenkinsFile(repository)))
+        .then(repositories => getUpdatedDates(repositories))
 }
 function getRepositoryInfo(repositoryName) {
     const repo = gh.getRepo(organizationName, repositoryName);
@@ -30,54 +30,43 @@ function getRepositoryUpdatedDates(repositoryInfos) {
 function mapAndResolveAll(items, operation) {
     return Promise.all(items.map(item => operation(item)));
 }
-/*
- JenkinsFile is a file in the actual code, observed in GitHub
- TODO : find a way to see if a repository has a Jenkinsfile, if yes: keep in list, else: don't */
+function hasJenkinsFile(repositoryInfo) {
+    let status = false, reason;
+    const repo = repositoryInfo.repositoryObject;
+    const file = repo.getContents("develop","Jenkinsfile")
+        .catch(reason => {
+            handleJenkinsFileError(reason,repositoryInfo.details.repositoryName);
+            //return false;
+        })
 
-function hasJenkinsfiles() {
-    const test = new Promise(function (resolve, reject) {
-
-        const repo = gh.getRepo(organizationName,"jenkins_repository_housecleaning");
-        const information = repo.getContents("develop","Jenkinsfile");
-
-
-        resolve(information);
-
-        //for getting updated date later
-        // repos.getDetails((error, data) =>{
-        //     resolve(data.updated_at);
-        // });
-    })
-        .catch(reason => handleRepositoryHooksError(reason))
-        .then(resolve,reject);
 }
-function handleRepositoryHooksError(error) {
-    reject("Something wicked this way come")
-    if (error.response.status !== 404) {
+function handleJenkinsFileError(error,repositoryName) {
+    if (error.response.status === 404) {
+        console.error('Jenkinsfile not found in', repositoryName);
+    }
+    else {
         throw new Error(error.message);
     }
-}
-// working listing of updated dates
-function getLast(){
-    const updateMap = new Map();
-    const test = new Promise(function (resolve, reject) {
-        const repos = organization.getRepos((error, data) => {
-           if(error) {
-               reject(error);
-           }
-           else {
-               const repo = data;
-               for(let i = 0;i < repo.length;i++) {
-                   updateMap.set(repo[i].name,repo[i].updated_at);
-               }
-               resolve(updateMap);
-           }
-        });
-    })
-        .then(resolve,reject);
-}
 
-
+}
+function getUpdatedDates(repositoryInfo) {
+    return mapAndResolveAll(repositoryInfo, getUpdatedDate);
+}
+function getUpdatedDate(repositoryInfo) {
+    const repo = repositoryInfo.repositoryObject;
+    repo.getDetails((error, data) =>{
+        if(error) {
+            reject(error);
+        }
+        const updatedDate = data.updated_at;
+        return {
+            repositoryObject: repo,
+            details: {
+                repositoryName: repositoryInfo.details.repositoryName,
+                updatedDate
+            }
+        }
+    });
+}
 exports.getLastUpdateDate = getLastUpdateDate;
-exports.getLast = getLast;
-exports.hasJenkinsfiles = hasJenkinsfiles;
+
