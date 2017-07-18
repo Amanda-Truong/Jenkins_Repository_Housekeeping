@@ -15,8 +15,8 @@ function getLastUpdateDate() {
     return Promise.resolve(gh.getOrganization(organizationName))
         .then(organization => organization.getRepos())
         .then(response => response.data.map(item => item.name).map(name => getRepositoryInfo(name)))
-        .then(repositories => repositories.filter(repository => hasJenkinsFile(repository)))
-       // .then(repositories => checkJenkinsFiles(repositories))
+        .then(repositories => checkJenkinsFiles(repositories))
+        .then(repositories => filterList(repositories))
 }
 
 function getRepositoryInfo(repositoryName) {
@@ -54,41 +54,46 @@ function getUpdatedDate() {
 function mapAndResolveAll(items, operation) {
     return Promise.all(items.map(item => operation(item)));
 }
-
-const removalList = [];
-function filterList(repositories) {
-    const list = repositories;
-    for(let i = 0; i < removalList.length; i++) {
-        list.delete(removalList[i]);
-    }
-    return list;
-}
+// Getting the Jenkinsfile and setting the repo info about if it has it or not
 function hasJenkinsFile(repositoryInfo) {
-    let status = true;
+    let hasJenkinsfile = true;
     const repo = repositoryInfo.repositoryObject;
     return repo.getContents("develop","Jenkinsfile")
         .catch(reason => {
             handleJenkinsFileError(reason,repositoryInfo.details.repositoryName);
-            status = false;
+            hasJenkinsfile = false;
         })
-        return {
-            repositoryObject: repo,
-            details: {
-                repositoryName: repositoryInfo.details.repositoryName,
-                lastUpdatedDate: repositoryInfo.details.lastUpdatedDate,
-                status
-            }
-        }
+        .then(() => {
+            return {
+                //repositoryObject: repo,
+                details: {
+                    repositoryName: repositoryInfo.details.repositoryName,
+                    lastUpdatedDate: repositoryInfo.details.lastUpdatedDate,
+                    hasJenkinsfile
+                }
+            };
+        })
+}
+function checkJenkinsFiles(repositoryInfos) {
+    return mapAndResolveAll(repositoryInfos, hasJenkinsFile);
 }
 function handleJenkinsFileError(error,repositoryName) {
     if (error.response.status === 404) {
         console.error('Jenkinsfile not found in', repositoryName);
-        removalList.push(repositoryName);
     }
     else {
         throw new Error(error.message);
     }
 }
 
+function filterList(repositories) {
+    const list = [];
+    for(let i = 0; i < repositories.length; i++) {
+        if(repositories[i].details.hasJenkinsfile) {
+            list.push(repositories[i]);
+        }
+    }
+    return list;
+}
 exports.getLastUpdateDate = getLastUpdateDate;
 
