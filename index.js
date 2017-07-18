@@ -7,12 +7,18 @@ function handler(event, context, callback)
 
     Promise.resolve()
         .then(() => gitHubService.getLastUpdateDate())
+        .then(result => handleUpdatedDatesResult(result))
         .then(() => callback(null, "Done!!"))
 
         .catch((reason) => {
             console.error(reason);
             callback(reason);
         });
+}
+function handleUpdatedDatesResult(result) {
+    console.log('Jenkinsfile found in:', result);
+    return result
+      //  .map(item => item.repository);
 }
 
 // TODO have it print out names and dates of the list
