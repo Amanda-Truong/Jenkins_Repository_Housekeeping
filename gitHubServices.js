@@ -45,7 +45,7 @@ function getUpdatedDate() {
             else {
                 const repo = data;
                 for(let i = 0;i < repo.length;i++) {
-                    updates.push(repo[i].updated_at);
+                    updates.push(repo[i].pushed_at); // the pushed date is newer than the updated dates, it is also more accurate to github's information.
                 }
             }
         });
@@ -79,7 +79,7 @@ function checkJenkinsFiles(repositoryInfos) {
 }
 function handleJenkinsFileError(error,repositoryName) {
     if (error.response.status === 404) {
-        console.error('Jenkinsfile not found in', repositoryName);
+        //console.error('Jenkinsfile not found in', repositoryName);
     }
     else {
         throw new Error(error.message);
@@ -88,12 +88,30 @@ function handleJenkinsFileError(error,repositoryName) {
 
 function filterList(repositories) {
     const list = [];
+    const day30 = getThirtyDaysDate();
     for(let i = 0; i < repositories.length; i++) {
-        if(repositories[i].details.hasJenkinsfile) {
+        if(repositories[i].details.hasJenkinsfile && compareDates(repositories[i].details.lastUpdatedDate)) {
             list.push(repositories[i]);
         }
     }
     return list;
+}
+
+function compareDates(repoDate) {
+    // this is because of the whole updated date undefined thing for the first few runs
+    if(repoDate === undefined)
+        return true;
+
+    //gets date of 30 days from run
+    const day30 = new Date();
+    d.setDate(d.getDate()-30);
+
+    const newRepoDate = new Date();
+    newRepoDate.setFullYear(repoDate.slice(0,4),Number(repoDate.slice(5,7))-1,repoDate.slice(8,10));
+    if(newRepoDate >= day30)
+        return true;
+    else
+        return false;
 }
 exports.getLastUpdateDate = getLastUpdateDate;
 
