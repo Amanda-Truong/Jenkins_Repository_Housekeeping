@@ -8,7 +8,7 @@ const organization = gh.getOrganization(organizationName);
 resolve = console.log;
 reject = console.log;
 /*
-    TODO figure out how to filter out the non jenkinsfile repos| find out why date takes a few runs to appear
+    TODO find out why date takes a few runs to appear
  */
 function getLastUpdateDate() {
     getUpdatedDate();
@@ -88,12 +88,12 @@ function handleJenkinsFileError(error,repositoryName) {
 
 function filterList(repositories) {
     const list = [];
-    const day30 = getThirtyDaysDate();
     for(let i = 0; i < repositories.length; i++) {
         if(repositories[i].details.hasJenkinsfile && compareDates(repositories[i].details.lastUpdatedDate)) {
             list.push(repositories[i]);
         }
     }
+    console.log(list);
     return list;
 }
 
@@ -104,7 +104,7 @@ function compareDates(repoDate) {
 
     //gets date of 30 days from run
     const day30 = new Date();
-    d.setDate(d.getDate()-30);
+    day30.setDate(day30.getDate()-30);
 
     const newRepoDate = new Date();
     newRepoDate.setFullYear(repoDate.slice(0,4),Number(repoDate.slice(5,7))-1,repoDate.slice(8,10));
