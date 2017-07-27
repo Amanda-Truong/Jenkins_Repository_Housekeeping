@@ -1,22 +1,18 @@
 const JenkinsAPI = require("jenkins-api");
-const jenkins = JenkinsAPI.init(process.env.JENKINS_API_LINK);
+const jenkins = JenkinsAPI.init('https://atruong:374ee9b0c289d76f5811d9aa66a27dee@prod-jenkins.newforma.io/job/Newforma/api/json?pretty=true');
 
 
-
-//TODO look at your notepad, I put a list of what our next time should be deary.
-//TODO Look up how to use Jenkins API methods, this is found at https://www.npmjs.com/package/jenkins-api
-// we can focus on other stuff once we get the hang of it.
 function getJenkinsJobs(repositories) {
 
     return Promise.resolve()
         .then(() => filterJenkinsJobs(repositories))
-    //.then(jenkins => jenkins.all_jobs())
-        //.then(jobs => filtering(repositories,jobs))
+        .then(result => console.log(result))
 }
-
+const jobListFromRepo = [];
 function filterJenkinsJobs(repositories){
-    const jobListFromRepo = [];
-        return jenkins.all_jobs(function (err, data) {
+
+    return new Promise(function (resolve, reject) {
+         jenkins.all_jobs_in_view("newforma.cloud",(err, data) => {
             if (err) {
                 reject(err);
             }
@@ -24,14 +20,18 @@ function filterJenkinsJobs(repositories){
                 const jobs = data;
                 for(let i = 0; i < repositories.length;i++) {
                     for(let j = 0; j < jobs.length; j++) {
-                        if(repositories[i].details.repositoryName == jobs[j].name) {
+                        if(repositories[i].details.repositoryName === jobs[j].name) {
+                            //console.log(jobs[j].name);
                             jobListFromRepo.push(jobs[j]);
+                            break;
                         }
                     }
                 }
-                console.log(jobListFromRepo);
+                resolve(jobListFromRepo);
             }
-        })
+        });
+    })
+        .then(result => {return result})
 }
 
 exports.getJenkinsJobs = getJenkinsJobs;
