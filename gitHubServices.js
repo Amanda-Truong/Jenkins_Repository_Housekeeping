@@ -21,7 +21,6 @@ function getLastUpdateDate() {
 
 function getRepositoryInfo(repositoryName) {
     const repo = gh.getRepo(organizationName, repositoryName);
-    //console.log(repo);
     const lastUpdatedDate = updates[count];
     count++;
     return {
@@ -66,7 +65,7 @@ function hasJenkinsFile(repositoryInfo) {
         .then(() => {
             return {
                 //repositoryObject: repo,
-                details: {
+                repoInfo: {
                     repositoryName: repositoryInfo.details.repositoryName,
                     lastUpdatedDate: repositoryInfo.details.lastUpdatedDate,
                     hasJenkinsfile
@@ -89,11 +88,10 @@ function handleJenkinsFileError(error,repositoryName) {
 function filterList(repositories) {
     const list = [];
     for(let i = 0; i < repositories.length; i++) {
-        if(repositories[i].details.hasJenkinsfile && compareDates(repositories[i].details.lastUpdatedDate)) {
+        if(repositories[i].repoInfo.hasJenkinsfile && compareDates(repositories[i].repoInfo.lastUpdatedDate)) {
             list.push(repositories[i]);
         }
     }
-    console.log(list);
     return list;
 }
 
