@@ -1,24 +1,25 @@
-const JenkinsAPI = require("jenkins-api");
-const jenkins = JenkinsAPI.init(process.env.JENKINS_API_LINK);
-
-
+const jenkins = require("jenkins")
+({ baseUrl: process.env.JENKINS_LINK, crumbIssuer: false });
+// time to start anew TODO: use the new Jenkins to get all the info you did last time.  ALONS-Y
 function getJenkinsJobs(repositories) {
 
     return Promise.resolve()
-        .then(() => filterJenkinsJobs(repositories))
+        .then(() => getFilteredJobsList(repositories))
         .then(result => getAllJobsInfo(result))
-        .then(result => getConfigFiles(result))
+        //.then(() => getConfig())
+        //.then(result => getJobInfo(result[0].name))
         .then(result => console.log(result))
 }
 
-function filterJenkinsJobs(repositories){
-    const jobListFromRepo = [];
-    return new Promise(function (resolve, reject) {
-         jenkins.all_jobs((err, data) => {
-            if (err) {
+//returns all the jobs that were from the filtered repo list
+function getFilteredJobsList(repositories) {
+    return new Promise(function(resolve, reject) {
+        jenkins.job.list((err, data) => {
+            if(err) {
                 reject(err);
             }
             else {
+                const jobListFromRepo = [];
                 const jobs = data;
                 for(let i = 0; i < repositories.length;i++) {
                     for(let j = 0; j < jobs.length; j++) {
@@ -30,44 +31,36 @@ function filterJenkinsJobs(repositories){
                 }
                 resolve(jobListFromRepo);
             }
-        });
+        })
     })
 }
-function getAllJobsInfo(jobs) {
-    const jobsInfoList = [];
-    for(let i = 0; i < jobs.length; i++) {
-        jobsInfoList.push(getJobInformation(jobs[i]))
+function getAllJobsInfo(jobs){
+    const jobList = [];
+    for(let i = 0; i < jobs.length;i++) {
+        jobList.push(getJobInfo(jobs[i].name));
     }
-    return jobsInfoList;
+    return jobList;
+
 }
-function getJobInformation(job) {
-    const jobName = job.name, jobUrl = job.url, jobClass = job._class;
-    return {
-        jobInfo: {
-            jobName,
-            jobUrl,
-            jobClass
-        }
-    }
+function getJobInfo(jobName) {
+    return new Promise(function(resolve, reject) {
+        jenkins.job.get(jobName, (error, data) => {
+            if (error) {
+                reject(error)
+            }
+            else {
+                resolve(data);
+            }
+        });
+    })
+        .then(result => {
+            return {
+                jobName,
+                job:result
+
+            }
+        })
 }
-function getConfigFiles(jobs) {
-    const list = [];
-    for(let i = 0; i < jobs.length; i++) {
-        list.push(getConfigFile(jobs[i]));
-    }
-    return list;
-}
-// key thing with the config.xml file, it only works if you are already longed into jenkins of that particular account
-function getConfigFile(job) {
-    const urlLength = job.jobInfo.jobUrl.length;
-    const configFile = `https://${process.env.JENKINS_ACCESS_TOKEN}@${job.jobInfo.jobUrl.slice(8,urlLength)}config.xml`;
-    return {
-        config_xml_File: configFile,
-        jobInfo: {
-            jobName: job.jobInfo.jobName,
-            jobUrl: job.jobInfo.jobUrl,
-            jobClass: job.jobInfo.jobClass
-        }
-    }
-}
+
+
 exports.getJenkinsJobs = getJenkinsJobs;

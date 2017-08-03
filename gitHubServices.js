@@ -61,6 +61,7 @@ function hasJenkinsFile(repositoryInfo) {
         .catch(reason => {
             handleJenkinsFileError(reason,repositoryInfo.details.repositoryName);
             hasJenkinsfile = false;
+            deniedList.push(repositoryInfo);
         })
         .then(() => {
             return {
@@ -91,6 +92,9 @@ function filterList(repositories) {
         if(repositories[i].repoInfo.hasJenkinsfile && compareDates(repositories[i].repoInfo.lastUpdatedDate)) {
             list.push(repositories[i]);
         }
+        else {
+            deniedList.push(repositories[i]);
+        }
     }
     return list;
 }
@@ -111,5 +115,11 @@ function compareDates(repoDate) {
     else
         return false;
 }
+const deniedList = [];
+// this will push our the repos that do not have a Jenkinsfile or haven't been updated in the past 30 days
+function getNotApplyList() {
+    return deniedList;
+}
 exports.getLastUpdateDate = getLastUpdateDate;
+exports.getNotApplyList = getNotApplyList;
 
