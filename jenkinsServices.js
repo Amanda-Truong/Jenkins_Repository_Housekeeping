@@ -6,8 +6,7 @@ function getJenkinsJobs(repositories) {
     return Promise.resolve()
         .then(() => getFilteredJobsList(repositories))
         .then(result => getAllJobsInfo(result))
-        //.then(() => getConfig())
-        //.then(result => getJobInfo(result[0].name))
+        .then(result => getAllJobsConfig(result))
         .then(result => console.log(result))
 }
 
@@ -24,7 +23,7 @@ function getFilteredJobsList(repositories) {
                 for(let i = 0; i < repositories.length;i++) {
                     for(let j = 0; j < jobs.length; j++) {
                         if(repositories[i].repoInfo.repositoryName === jobs[j].name) {
-                            jobListFromRepo.push(jobs[j]);
+                            jobListFromRepo.push(jobs[j].name);
                             break;
                         }
                     }
@@ -34,20 +33,17 @@ function getFilteredJobsList(repositories) {
         })
     })
 }
-function getAllJobsInfo(jobs){
-    const jobList = [];
-    for(let i = 0; i < jobs.length;i++) {
-        jobList.push(getJobInfo(jobs[i].name));
-    }
-    return jobList;
-
+function mapAndResolveAll(items, operation) {
+    return Promise.all(items.map(item => operation(item)));
+}
+function getAllJobsInfo(jobNames){
+    return mapAndResolveAll(jobNames,getJobInfo);
 }
 function getJobInfo(jobName) {
-    return new Promise(function(resolve, reject) {
+     return  new Promise(function(resolve, reject) {
         jenkins.job.get(jobName, (error, data) => {
-            if (error) {
-                reject(error)
-            }
+            if(error)
+                reject(error);
             else {
                 resolve(data);
             }
@@ -56,10 +52,33 @@ function getJobInfo(jobName) {
         .then(result => {
             return {
                 jobName,
-                job:result
-
+                jobInfo:result
             }
         })
+}
+function getAllJobsConfig(jobs) {
+    return mapAndResolveAll(jobs,getJobConfig)
+}
+function getJobConfig(job) {
+    return new Promise(function(resolve,reject) {
+        jenkins.job.config(job.jobName,(error,data)=>{
+            if(error) {
+                reject(error);
+            }
+            else {
+                resolve(data);
+            }
+        })
+
+    })
+        .then(result => {
+            return {
+                jobName: job.jobName,
+                jobInfo: job.jobInfo,
+                configXML: result
+
+            }
+        });
 }
 
 

@@ -37,7 +37,7 @@ const updates = [];
 // ^^gets the dates and push it into a global array.  The index should be the same as the other so they sync up
 function getUpdatedDate() {
     const test = new Promise(function (resolve, reject) {
-        const repos = organization.getRepos((error, data) => {
+        organization.getRepos((error, data) => {
             if(error) {
                 reject(error);
             }
