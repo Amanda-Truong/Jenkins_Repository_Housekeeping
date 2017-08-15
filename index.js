@@ -8,7 +8,6 @@ function handler(event, context, callback)
         .then(() => gitHubService.getLastUpdateDate())
         .then(result => handleUpdatedDatesRepos(result))
         .then(result => jenkinsService.getJenkinsJobs(result))
-        //.then(result => handleJenkinsInfo(result))
 
         .then(() => callback(null, "Done!!"))
 
@@ -21,8 +20,4 @@ function handleUpdatedDatesRepos(result) {
     console.log('Jenkinsfile found in:\n', result);
     return result;
 }
-function handleJenkinsInfo(result) {
-    console.log('Jenkins Job Info:\n', result);
-}
-
 exports.handler = handler;
