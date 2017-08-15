@@ -6,7 +6,7 @@ function handler(event, context, callback)
     console.log('Context:', context);
     Promise.resolve()
         .then(() => gitHubService.getLastUpdateDate())
-        //.then(result => handleUpdatedDatesRepos(result))
+        .then(result => handleUpdatedDatesRepos(result))
         .then(result => jenkinsService.getJenkinsJobs(result))
         //.then(result => handleJenkinsInfo(result))
 
@@ -18,11 +18,11 @@ function handler(event, context, callback)
         });
 }
 function handleUpdatedDatesRepos(result) {
-    console.log('Jenkinsfile found in:', result);
+    console.log('Jenkinsfile found in:\n', result);
     return result;
 }
 function handleJenkinsInfo(result) {
-    console.log('Jenkins Info', result);
+    console.log('Jenkins Job Info:\n', result);
 }
 
 exports.handler = handler;
