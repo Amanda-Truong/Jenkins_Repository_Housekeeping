@@ -4,10 +4,6 @@ const organizationName = process.env.GH_ORGANIZATION;
 const gh = new GitHub({
     token: process.env.GH_ACCESS_TOKEN,
 });
-
-resolve = console.log;
-reject = console.log;
-
 function getLastUpdateDate() {
     return Promise.resolve(gh.getOrganization(organizationName))
         .then(organization => organization.getRepos())
@@ -28,11 +24,12 @@ function getRepositoryInfo(repositoryName) {
         }
     };
 }
-function getAllUpdatedDates(repositories) {
-    return mapAndResolveAll(repositories, testgetUpdatedDate)
-}
 
-function testgetUpdatedDate(repositoryInfo) {
+// gets the information on the last pushed date.
+function getAllUpdatedDates(repositories) {
+    return mapAndResolveAll(repositories, getUpdatedDate)
+}
+function getUpdatedDate(repositoryInfo) {
     return new Promise(function(resolve, reject) {
         const repo = repositoryInfo.repositoryObject;
         repo.getDetails((error, data) => {
@@ -53,16 +50,18 @@ function testgetUpdatedDate(repositoryInfo) {
             }
         })
 }
+
 function mapAndResolveAll(items, operation) {
     return Promise.all(items.map(item => operation(item)));
 }
+
 // Getting the Jenkinsfile and setting the repo info about if it has it or not
 function hasJenkinsFile(repositoryInfo) {
     let hasJenkinsfile = true;
     const repo = repositoryInfo.repositoryObject;
     return repo.getContents("develop","Jenkinsfile")
         .catch(reason => {
-            handleJenkinsFileError(reason,repositoryInfo.details.repositoryName);
+            handleJenkinsFileError(reason);
             hasJenkinsfile = false;
         })
         .then(() => {
@@ -93,6 +92,7 @@ function filterJenkinsList(repositories) {
     }
     return list;
 }
+
 // filters out all repos that haven't pushed anything after 30 days.
 function filterDatesList(repositories) {
     const list = [];

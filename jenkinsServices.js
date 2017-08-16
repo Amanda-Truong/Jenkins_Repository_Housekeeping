@@ -19,19 +19,21 @@ function getFilteredJobsList(repositories) {
         resolve(jobListFromRepo);
     })
 }
+// creates the string that should sit in the <regex> line
 function regexMaker(jobNames){
     if(jobNames.length === 1) {
         return jobNames[0];
     }
     else {
-        let string = ".*(" + jobNames[0];
+        let string = ".?(" + jobNames[0];
         for(let i = 1; i < jobNames.length;i++) {
             string += ("|" + jobNames[i]);
         }
-        string += ").*";
+        string += ").?";
         return string;
     }
 }
+
 // edits the main config.xml file so that the regex will scan only the listed.
 function editMainXML(newRegex){
     return new Promise(function(resolve, reject){
@@ -52,13 +54,11 @@ function editMainXML(newRegex){
             return mainConfig.replace(sub, "<regex>" + newRegex + "</regex>\n");
         })
 }
+
 function setMainXML(newConfig) {
     jenkinsHome.job.config(process.env.GH_ORGANIZATION,newConfig,(error)=>{
         if(error){
             console.error(error);
-        }
-        else {
-            console.log("Mischief Managed");
         }
     })
 }
