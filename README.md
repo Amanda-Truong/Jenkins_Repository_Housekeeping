@@ -22,11 +22,12 @@ Key | Description
 -- | --
 GH_ORGANIZATION | Name of the organization that owns the GitHub repositories
 GH_ACCESS_TOKEN | GitHub access token
-JENKINS_HOME_LINK | Link to the Jenkin's Main Menu. Should be formatted 'https://username:jenkins_token@jenkinslink.io'
+JENKINS_ORGANIZATION | Name of the organization that owns the Jenkins Job
+JENKINS_HOME_LINK | Link to the Jenkins Main Menu. Should be formatted 'https://username:jenkins_token@jenkinslink.io'
 
 The [manualTest.js](integration/manualTest.js) file uses the [dotenv](https://www.npmjs.com/package/dotenv) npm package to make it easier to manage these environment variables.
 
-Ir order to run the manual tests, create a file named `.env` at the root of the project and add environment-specific variables on new lines in the form of `NAME=VALUE`.
+In order to run the manual tests, create a file named `.env` at the root of the project and add environment-specific variables on new lines in the form of `NAME=VALUE`.
 
 For example:
 

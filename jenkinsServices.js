@@ -37,7 +37,7 @@ function regexMaker(jobNames){
 // edits the main config.xml file so that the regex will scan only the listed.
 function editMainXML(newRegex){
     return new Promise(function(resolve, reject){
-        jenkinsHome.job.config(process.env.GH_ORGANIZATION,(error, data) =>{
+        jenkinsHome.job.config(process.env.JENKINS_ORGANIZATION,(error, data) =>{
             if(error) {
                 reject(error);
             }
@@ -56,7 +56,7 @@ function editMainXML(newRegex){
 }
 
 function setMainXML(newConfig) {
-    jenkinsHome.job.config(process.env.GH_ORGANIZATION,newConfig,(error)=>{
+    jenkinsHome.job.config(process.env.JENKINS_ORGANIZATION,newConfig,(error)=>{
         if(error){
             console.error(error);
         }
